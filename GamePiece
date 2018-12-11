@@ -1,0 +1,42 @@
+import java.awt.*;
+
+/*
+ * Object that stores color and whether or not it has been checked.
+ * wasChecked is used when checking if groups of pieces are alive.
+ */
+public class GamePiece {
+
+	private Color color;
+	private boolean wasChecked;
+
+	// constructor
+	public GamePiece(Color c) {
+		color = c;
+		wasChecked = false;
+	}
+
+	// get piece's color
+	public Color getColor() {
+		return color;
+	}
+
+	// get whether the piece was checked or not
+	public boolean wasChecked() {
+		return wasChecked;
+	}
+
+	// change checked status of piece to true
+	public void checked() {
+		wasChecked = true;
+	}
+
+	// change checked status of piece to false
+	public void uncheck() {
+		wasChecked = false;
+	}
+
+	// change color of the piece
+	public void changeColor(Color c) {
+		color = c;
+	}
+}

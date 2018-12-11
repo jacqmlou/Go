@@ -1,0 +1,28 @@
+import java.awt.*;
+
+/*
+ * This class creates the board drawing, creating the colored background and grid.
+ */
+public class GameGrid {
+
+	// grid constants
+	public static final int START = 35;
+	public static final int END = 485;
+	public static final int SHIFT = 10;
+
+	// constructor
+	public GameGrid() {
+	}
+
+	// draw the board
+	public void draw(Graphics g) {
+		g.setColor(new Color(226, 188, 104));
+		g.fillRect(25, 25, 470, 470);
+		for (int i = 1; i <= 19; i++) {
+			g.setColor(Color.BLACK);
+			g.drawLine(i * 25 + SHIFT, START, i * 25 + SHIFT, END);
+			g.drawLine(START, i * 25 + SHIFT, END, i * 25 + SHIFT);
+		}
+	}
+
+}

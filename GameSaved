@@ -1,0 +1,140 @@
+import java.io.BufferedReader;
+import java.io.Reader;
+import java.util.LinkedList;
+import java.awt.Color;
+import java.io.*;
+
+//GameSaved allows for reading the scores and pieces from the GameLastSave.txt file
+public class GameSaved {
+
+	private BufferedReader br;
+	private LinkedList<GameRecordedPiece> record;
+	private int blackScore;
+	private int whiteScore;
+
+	// constructor using reader
+	public GameSaved(Reader r) throws IOException {
+		if (r == null) {
+			throw new IllegalArgumentException();
+		}
+
+		br = new BufferedReader(r);
+		record = new LinkedList<GameRecordedPiece>();
+
+		// Get the scores from the first line
+		String scores = br.readLine();
+		blackScore = getBlackScoreFromString(scores);
+		whiteScore = getWhiteScoreFromString(scores);
+
+		// get each piece from the rest of the lines and add them to the LinkedList
+		while (br.ready()) {
+			String s = br.readLine();
+			Color c = getColor(s);
+			int x = getX(s);
+			int y = getY(s);
+			GameRecordedPiece p = new GameRecordedPiece(c, x, y);
+			record.add(p);
+		}
+	}
+
+	// make new GameSaved from a file
+	public static GameSaved make(String filename) throws IOException {
+		Reader r = new FileReader(filename);
+		System.out.println("make file reached");
+		GameSaved rec;
+		try {
+			rec = new GameSaved(r);
+		} finally {
+			if (r != null) {
+				r.close();
+			}
+		}
+		return rec;
+	}
+
+	// get the score of black from a line of the file
+	private int getBlackScoreFromString(String s) {
+		int index = s.indexOf(":");
+		return Integer.parseInt(s.substring(0, index));
+	}
+
+	// get blackScore
+	public int getBlackScore() {
+		return blackScore;
+	}
+
+	// get whiteScore
+	public int getWhiteScore() {
+		return whiteScore;
+	}
+
+	// get the score of white from a line of the file
+	private int getWhiteScoreFromString(String s) {
+		int index = s.indexOf(":");
+		System.out.println(s.substring(index + 1, s.length()));
+		return Integer.parseInt(s.substring(index + 1, s.length()));
+	}
+
+	// get the color of a piece from a line of the file
+	private Color getColor(String s) {
+		int index = s.indexOf(":");
+		String sub = s.substring(0, index);
+		return stringToColor(sub);
+	}
+
+	// get the x coordinate of a piece from a line of the file
+	private int getX(String s) {
+		int indexSecond = s.indexOf(":");
+		int indexLast = s.lastIndexOf(":");
+		return Integer.parseInt(s.substring(indexSecond + 1, indexLast));
+	}
+
+	// get the y coordinate of a piece from a line of the file
+	private int getY(String s) {
+		int indexLast = s.lastIndexOf(":");
+		int end = s.length();
+		return Integer.parseInt(s.substring(indexLast + 1, end));
+	}
+
+	// get the color representation of a String
+	private Color stringToColor(String s) {
+		if (s.equals("BLACK")) {
+			return Color.BLACK;
+		} else if (s.equals("WHITE")) {
+			return Color.WHITE;
+		} else {
+			System.out.println(s);
+			return Color.GRAY;
+		}
+	}
+
+	// get an array of GameRecordedPieces
+	public GameRecordedPiece[] toArray() {
+		int length = record.size();
+		GameRecordedPiece[] array = new GameRecordedPiece[length];
+		for (int i = 0; i < length; i++) {
+			array[i] = record.get(i);
+		}
+		return array;
+	}
+
+	// get the color of the last piece placed down in the saved game
+	public Color lastColor() {
+		GameRecordedPiece p = record.peekLast();
+		int fromLastIndex = record.size() - 1;
+		if (p == null) {
+			return Color.GRAY;
+		}
+		while (p != null && isGray(p.getColor())) {
+			p = record.get(fromLastIndex);
+			fromLastIndex--;
+		}
+		return p.getColor();
+	}
+
+	// check if a color is gray
+	private boolean isGray(Color c) {
+		return c == Color.GRAY;
+	}
+
+}

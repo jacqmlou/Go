@@ -1,0 +1,98 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class Game implements Runnable {
+	public void run() {
+
+		// Game saving file constant
+		final String filename = "files/GameLastSave.txt";
+
+		// Create game frame
+		final JFrame frame = new JFrame("Go");
+		frame.setLocation(300, 300);
+
+		// Create status panel
+		final JPanel status_panel = new JPanel();
+		frame.add(status_panel, BorderLayout.SOUTH);
+		final JLabel status = new JLabel("New Game");
+		status_panel.add(status);
+
+		final GameBoard board = new GameBoard(status);
+		frame.add(board, BorderLayout.CENTER);
+
+		// Create vertical control panel
+		final JPanel control_panel = new JPanel();
+		control_panel.setLayout(new BoxLayout(control_panel, BoxLayout.Y_AXIS));
+
+		frame.add(control_panel, BorderLayout.EAST);
+
+		// create reset button
+		final JButton reset = new JButton("Reset");
+		reset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				board.reset();
+			}
+		});
+		control_panel.add(reset);
+
+		// create load saved game button
+		final JButton loadSaved = new JButton("Load Saved Game");
+		loadSaved.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				board.loadSaved(filename);
+			}
+		});
+		control_panel.add(loadSaved);
+
+		// create save game button
+		final JButton save = new JButton("Save Game");
+		save.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				board.saveGame(filename);
+			}
+		});
+		control_panel.add(save);
+
+		// create forfeit button
+		final JButton forfeit = new JButton("Forfeit");
+		forfeit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				board.forfeit();
+			}
+		});
+		control_panel.add(forfeit);
+
+		// create Instruction
+		final JLabel instructions = new JLabel("Intructions:" );
+		final JLabel click = new JLabel("Click any intersection to place pieces. Turns alternate every placement of a piece.");
+		final JLabel rules = new JLabel("Rules:");
+		final JLabel numberOne = new JLabel("1) Try to surround your opponent with your own pieces.");
+		final JLabel numberTwo = new JLabel("2) A group of pieces is defined as any group of orthogonally adjacent pieces of the same color.");
+		final JLabel numberThree = new JLabel("3) A group is \"dead\" if no piece in the group has any liberties (orthogonally adjacent empty spots).");
+		final JLabel numberFour = new JLabel("4) Groups that are dead will be removed.");
+		final JLabel numberFive = new JLabel("5) Pieces cannot be placed on intersections from which pieces have been removed.");
+		final JLabel numberSix = new JLabel("6) Win points by completely surrounding your opponent's group!");
+		final JLabel fun = new JLabel("Have fun!");
+		control_panel.add(instructions);
+		control_panel.add(click);
+		control_panel.add(rules);
+		control_panel.add(numberOne);
+		control_panel.add(numberTwo);
+		control_panel.add(numberThree);
+		control_panel.add(numberFour);
+		control_panel.add(numberFive);
+		control_panel.add(numberSix);
+		control_panel.add(fun);
+
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+
+		board.reset();
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Game());
+	}
+}

@@ -1,0 +1,43 @@
+import java.awt.Color;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
+
+//GameSaver rewrites GameLastSave.txt to record new saved game
+public class GameSaver {
+	private BufferedWriter out;
+
+	// new Writer
+	public GameSaver(int black, int white, LinkedList<GameRecordedPiece> l, String filename) throws IOException {
+		out = new BufferedWriter(new FileWriter(filename));
+		try {
+			// write in scores
+			out.write(black + ":" + white + "\n");
+			// write in color of pieces and location while the LinkedList is not empty
+			while (!l.isEmpty()) {
+				GameRecordedPiece p = l.getFirst();
+				String c = colorToString(p.getColor());
+				int x = p.getX();
+				int y = p.getY();
+				out.write(c + ":" + x + ":" + y + "\n");
+				l.removeFirst();
+			}
+		} finally {
+			out.flush();
+			out.close();
+		}
+	}
+
+	// get String name of color
+	private static String colorToString(Color c) {
+		if (c == Color.BLACK) {
+			return "BLACK";
+		} else if (c == Color.WHITE) {
+			return "WHITE";
+		} else {
+			return "GRAY";
+		}
+	}
+
+}

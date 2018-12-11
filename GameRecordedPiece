@@ -1,0 +1,32 @@
+import java.awt.Color;
+
+//A GameRecordedPiece is an object with color and x and y coordinates.
+public class GameRecordedPiece {
+
+	private Color color;
+	private int xCoor;
+	private int yCoor;
+
+	// Constructor
+	public GameRecordedPiece(Color c, int x, int y) {
+		color = c;
+		xCoor = x;
+		yCoor = y;
+	}
+
+	// Get the color of the piece
+	public Color getColor() {
+		return color;
+	}
+
+	// Get the x coordinate of the piece
+	public int getX() {
+		return xCoor;
+	}
+
+	// Get the y coordinate of the piece
+	public int getY() {
+		return yCoor;
+	}
+
+}

@@ -1,0 +1,294 @@
+
+import java.awt.*;
+
+/*
+ * GamePieces is an object that stores all the pieces in the board and handles adding and removing.
+ */
+public class GamePieces {
+
+	// GamePieces constants
+	private int dimension = 20;
+	private int radius = 20;
+	private GamePiece[][] pieces;
+
+	// construct board of pieces
+	public GamePieces() {
+		pieces = new GamePiece[dimension][dimension];
+	}
+
+	// add piece into board
+	public void addPiece(Color color, int x, int y) {
+		if (outOfBounds(x, y)) {
+			return;
+		}
+		if (pieces[x][y] == null) {
+			pieces[x][y] = new GamePiece(color);
+		}
+	}
+
+	// remove piece from board
+	public void removePiece(int x, int y) {
+		pieces[x][y].changeColor(Color.GRAY);
+		;
+	}
+
+	// check if a given index is an empty space
+	public boolean isValidSpot(int x, int y) {
+		if (!outOfBounds(x, y)) {
+			return pieces[x][y] == null;
+		}
+		return false;
+	}
+
+	// function that checks if group is alive and then unchecks all the pieces in
+	// GamePieces.
+	public boolean isGroupAlive(int x, int y, Color c) {
+		boolean alive = isGroupAliveHelper(x, y, c);
+		uncheckPieces();
+		return alive;
+	}
+
+	// helper function to recursively check if a given piece is alive or if it is
+	// part of a group that
+	// is alive
+	public boolean isGroupAliveHelper(int x, int y, Color c) {
+		// check if coordinates are in bounds
+		if (outOfBounds(x, y)) {
+			return false;
+		}
+		GamePiece p = pieces[x][y];
+		boolean alive = false;
+		// check if there is a piece at x,y
+		if (p == null) {
+			return false;
+		}
+		Color base = p.getColor();
+		// if there is a gray piece (a piece that has already been removed),
+		// the space automatically counts as empty and the group is alive
+		if (base == Color.GRAY) {
+			return true;
+		}
+		// if the piece is not the same color as the other pieces, then it is not part
+		// of the group
+		if (base != c) {
+			return false;
+		}
+		// if the piece was already checked, then false
+		if (p.wasChecked()) {
+			return false;
+		}
+		// if the piece has at least one liberty (empty space) then the group is alive
+		if (numLiberties(x, y) > 0) {
+			alive = true;
+		} else {
+			// change p check status to checked
+			p.checked();
+			// recursively check all the other pieces in the group
+			alive = isGroupAliveHelper(x + 1, y, base) || isGroupAliveHelper(x, y + 1, base)
+					|| isGroupAliveHelper(x - 1, y, base) || isGroupAliveHelper(x, y - 1, base);
+		}
+		return alive;
+	}
+
+	// check how many liberties (orthogonally adjacent open spots) a given piece has
+	public int numLiberties(int x, int y) {
+		if (outOfBounds(x, y)) {
+			return -1;
+		}
+		if (pieces[x][y] == null) {
+			return -1;
+		}
+		int num = 0;
+		for (int i = -1; i < 2; i++) {
+			for (int j = -1; j < 2; j++) {
+				// check that the space to be checked in not out of bounds
+				if (x + i > 0 && x + i < dimension && y + j > 0 && y + j < dimension) {
+					// check if the space is null
+					if (Math.abs(i) != Math.abs(j) && pieces[x + i][y + j] == null) {
+						num++;
+					}
+				}
+			}
+		}
+		return num;
+	}
+
+	// check if placed piece has surrounded a group from above
+	public boolean hasSurroundAbove(int x, int y) {
+		// if space to be checked is out of bounds, then return false
+		if (y + 1 >= dimension || outOfBounds(x, y) || pieces[x][y] == null) {
+			return false;
+		}
+		// if there is no piece, then nothing has been surrounded
+		if (pieces[x][y + 1] == null) {
+			return false;
+		}
+		Color c = oppositeColor(pieces[x][y]);
+		// check if the piece below is of different color
+		if (pieces[x][y + 1].getColor() != c) {
+			return false;
+		}
+		return !isGroupAlive(x, y + 1, c);
+	}
+
+	// check if placed piece has surrounded a group from below
+	public boolean hasSurroundBelow(int x, int y) {
+		// if space to be checked is out of bounds, then return false
+		if (y - 1 < 0 || outOfBounds(x, y) || pieces[x][y] == null) {
+			return false;
+		}
+		// if there is no piece, then nothing has been surrounded
+		if (pieces[x][y - 1] == null) {
+			return false;
+		}
+		Color c = oppositeColor(pieces[x][y]);
+		// check if the piece above is of different color
+		if (pieces[x][y - 1].getColor() != c) {
+			return false;
+		}
+		return !isGroupAlive(x, y - 1, c);
+	}
+
+	// check if placed piece has surrounded a group to the right
+	public boolean hasSurroundRight(int x, int y) {
+		// if space to be checked is out of bounds, then return false
+		if (x + 1 >= dimension || outOfBounds(x, y) || pieces[x][y] == null) {
+			return false;
+		}
+		// if there is no piece, then nothing has been surrounded
+		if (pieces[x + 1][y] == null) {
+			return false;
+		}
+		Color c = oppositeColor(pieces[x][y]);
+		// check if the piece right is of different color
+		if (pieces[x + 1][y].getColor() != c) {
+			return false;
+		}
+		return !isGroupAlive(x + 1, y, c);
+	}
+
+	// check if placed piece has surrounded a group to the left
+	public boolean hasSurroundLeft(int x, int y) {
+		// if space to be checked is out of bounds, then return false
+		if (x - 1 < 0 || outOfBounds(x, y) || pieces[x][y] == null) {
+			return false;
+		}
+		// if there is no piece, then nothing has been surrounded
+		if (pieces[x - 1][y] == null) {
+			return false;
+		}
+		Color c = oppositeColor(pieces[x][y]);
+		// check if the piece left is of different color
+		if (pieces[x - 1][y].getColor() != c) {
+			return false;
+		}
+		return !isGroupAlive(x - 1, y, c);
+	}
+
+	// remove the group that contains a given piece
+	public int removeGroup(int x, int y, Color c) {
+		if (outOfBounds(x, y)) {
+			return 0;
+		}
+		GamePiece p = pieces[x][y];
+		// if piece has already been checked then don't recurse
+		if (p == null || p.wasChecked()) {
+			return 0;
+		}
+		Color base = p.getColor();
+		// if piece is not of the same base color, then return 0 and don't recurse
+		if (base != c) {
+			return 0;
+		}
+		// change color of piece to be removed
+		p.changeColor(Color.GRAY);
+		// check piece
+		p.checked();
+		// recursively remove pieces and increment number of pieces removed
+		return 1 + removeGroup(x + 1, y, base) + removeGroup(x - 1, y, base) + removeGroup(x, y + 1, base)
+				+ removeGroup(x, y - 1, base);
+	}
+
+	// reset pieces to unchecked
+	private void uncheckPieces() {
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				GamePiece p = pieces[i][j];
+				if (p != null) {
+					p.uncheck();
+				}
+			}
+		}
+	}
+
+	// get radius of pieces
+		public int getRadius() {
+			return radius;
+		}
+
+		// get dimension of the board
+		public int getDimension() {
+			return dimension;
+		}
+
+		// get the color at a given index of the board
+		public Color getColor(int x, int y) {
+			return pieces[x][y].getColor();
+		}
+
+		public GamePiece getPiece(int x, int y) {
+			return pieces[x][y];
+		}
+
+		// return the opposite color
+		private Color oppositeColor(GamePiece p) {
+			if (p.getColor() == Color.BLACK) {
+				return Color.WHITE;
+			} else {
+				return Color.BLACK;
+			}
+		}
+
+	// check if array is full
+	public boolean isFull() {
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (pieces[i][j] == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// fill null spaces of board with gray
+	public void fillRest() {
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (pieces[i][j] == null) {
+					pieces[i][j] = new GamePiece(Color.GRAY);
+				}
+			}
+		}
+	}
+
+	// check if coordinates are in bounds
+	private boolean outOfBounds(int x, int y) {
+		return x < 0 || x >= dimension || y < 0 || y >= dimension;
+	}
+
+	// draw all the pieces in the board
+	public void draw(Graphics g) {
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (pieces[i][j] != null && pieces[i][j].getColor() != Color.GRAY) {
+					Color c = pieces[i][j].getColor();
+					g.setColor(c);
+					g.fillOval(i * 25, j * 25, radius, radius);
+//					System.out.println("fillOval Coordinates (x = " + i*25 + ", y = " + j*25 + "), radius = " + radius);
+				}
+			}
+		}
+	}
+
+}
